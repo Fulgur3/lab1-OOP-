@@ -74,11 +74,6 @@ public:
     bool check2Nodes(Node* current, Node* newNode);
     bool checkEqual(Node* current, Node* newNode);
     Node* getParent(Node* current, Node* tree);
-    //Not completed
-    void deleteNodeByValue(int year, int month, int day, int hour, int minute, int second);
-    void deleteNodeByIndex(int index);
-    void searchNodeByValue(int year, int month, int day, int hour, int minute, int second);
-    void preOrder();
 
 };
 
@@ -117,4 +112,6 @@ public:
     void printNode(Node* current);
     Node* deleteNode();
     void deleteTree();
+    void deleteNodeByValue(int year, int month, int day, int hour, int minute, int second);
+    Node* getParent(Node* tree, Node* current);
 };
