@@ -1,5 +1,8 @@
 #include "Tree.h"
 #include <iostream>
+#include <math.h>
+#include <time.h>
+#include <vector>
 using namespace std;
 
 Tree::Node::Node(int year, int month, int day, int hour, int minute, int second) {
@@ -405,57 +408,8 @@ BinaryTree::Node* BinaryTree::getParent(Node* tree,Node *current) { // Node* par
     } else return nullptr;
 }
 
-//Not complete
-void BinaryTree::searchNodeByValue(int year, int month, int day, int hour, int minute, int second) {
-    Node* current = root;
-    Node* previous = root;
-    while(true){
-        // if(current->data == value)
-        //     std::cout<<"Node " << current << " has value = " << current->data << std::endl;
-    }
-}
-void BinaryTree::deleteNodeByValue(int year, int month, int day, int hour, int minute, int second) {
-    Node* current = root;
-    Node* parent = getParent(root, current);
-    if(current->left == nullptr && current->right == nullptr){
-        if(checkEqual(current,year,month,day,hour,minute,second)){
-            if(parent->left == current)
-                parent->left = nullptr;
-            else
-                parent->right = nullptr;
-        } else return;
-    } else if(current->left == nullptr || current->right == nullptr) {
-        if (checkEqual(current, year, month, day, hour, minute, second)) {
-            if (current->left == nullptr) {
-                if (parent->left = current) {
-                    parent->left = current->left;
-                    current = parent->left;
-                } else {
-                    parent->right = current->left;
-                    current = parent->right;
-                }
-            } else {
-                if (parent->left = current) {
-                    parent->left = current->right;
-                    current = parent->left;
-                } else {
-                    parent->right = current->right;
-                    current = parent->right;
-                }
-            }
-        } else {
 
-        }
-    }
-}
-void BinaryTree::deleteNodeByIndex(int index) {
-
-}
-void BinaryTree::preOrder() {
-
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////
+ 
 
 ///////////////////////////////BinarySearchTree//////////////////////////////////////////
 
@@ -655,14 +609,156 @@ void BinarySearchTree::outTree() {
 }
 
 
+void BinarySearchTree::deleteNodeByValue(int year, int month, int day, int hour, int minute, int second) {
+    Node* current = root;
+    Node* parent = getParent(root, current);
+
+    if (current->left == nullptr && current->right == nullptr) { // Если потомки отсутствуют
+        if (!checkEqual(current, year, month, day, hour, minute, second))
+            return;
+        else {
+            if (parent->left == current) {
+                parent->left = nullptr;
+                return;
+            }
+            else if (parent->right == current) {
+                parent->right = nullptr;
+                return;
+            }
+        }
+    }
+    else if (current->left == nullptr || current->right == nullptr) { // 1 потомок
+        if (checkEqual(current, year, month, day, hour, minute, second)) {
+            if (current->left == nullptr) {
+                if (parent->left == nullptr)
+                    parent->left = current->right;
+                else
+                    parent->right = current->right;
+            }
+            else {
+                if (parent->left == current)
+                    parent->left = current->left;
+                else
+                    parent->right = current->left;
+            }
+        }
+        else {
+            if (current->left == nullptr) {
+                if (!checkValues(current, year, month, day, hour, minute, second))
+                    current = current->right;
+                else return;
+            }
+            else if (current->right == nullptr) {
+                if (checkValues(current, year, month, day, hour, minute, second))
+                    current = current->left;
+                else return;
+            }
+        }
+    }
+    else { // 2 потомка
+        while (true) {
+            parent = getParent(root, current);
+            Node* temp = current->left;
+            if (parent != nullptr) {
+                if ((current->left == nullptr && current->right == nullptr) && !checkEqual(current, year, month, day, hour, minute, second))
+                    return;
+                else if (checkEqual(current, year, month, day, hour, minute, second)) {
+                    if (parent->left == current) {
+                        parent->left = temp;
+                    }
+                    else {
+                        parent->right = temp;
+                    }
+                    while (temp->right)
+                        temp = temp->right;
+                    temp->right = current->right;
+                    current = temp;
+                }
+                else if (!checkEqual(current, year, month, day, hour, minute, second)) {
+                    if (current->left != nullptr && current->right != nullptr) {
+                        if (checkValues(current, year, month, day, hour, minute, second))
+                            current = current->right;
+                        else current = current->left;
+                    }
+                    else if (current->left != nullptr) {
+                        current = current->left;
+                    }
+                    else {
+                        current = current->right;
+                    }
+                }
+            }
+            else {
+                if (!checkEqual(current, year, month, day, hour, minute, second)) {
+                    if (checkValues(current, year, month, day, hour, minute, second) && current->left != nullptr)
+                        current = current->left;
+                    else if (!checkValues(current, year, month, day, hour, minute, second) && current->right != nullptr)
+                        current = current->right;
+                }
+            }
+        }
+    }
+}
+
+BinarySearchTree::Node* BinarySearchTree::getParent(Node* tree, Node* current) { // Node* parent = getParent(current);
+    if (!checkEqual(current, tree)) {
+        if (check2Nodes(current, tree)) { //Если дата current меньше чем tree
+            Node* res = getParent(tree->left, current); //Получаем родителя для tree->left, рекурсивный проходи
+            if (res)
+                return res;
+            return tree;
+        }
+        else if (!check2Nodes(current, tree)) {
+            Node* res = getParent(tree->right, current);
+            if (res)
+                return res;
+            return tree;
+        }
+    }
+    else return nullptr;
+}
+
+
+string weekday(int d, int m, int y) {
+    int LeapYears = (int)y / 4;
+    long a = (y - LeapYears) * 365 + LeapYears * 366;
+    if (m >= 2) a += 31;
+    if (m >= 3 && (int)y / 4 == y / 4) a += 29;
+    else if (m >= 3) a += 28;
+    if (m >= 4) a += 31;
+    if (m >= 5) a += 30;
+    if (m >= 6) a += 31;
+    if (m >= 7) a += 30;
+    if (m >= 8) a += 31;
+    if (m >= 9) a += 31;
+    if (m >= 10) a += 30;
+    if (m >= 11) a += 31;
+    if (m == 12) a += 30;
+    a += d;
+    int b = (a - 2) % 7;
+    switch (b) {
+    case 1:
+        return "Monday";
+    case 2:
+        return "Tuesday";
+    case 3:
+        return "Wednesday";
+    case 4:
+        return "Thursday";
+    case 5:
+        return "Friday";
+    case 6:
+        return "Saturday";
+    case 7:
+        return "Sunday";
+    }
+}
 
 int main() {
-    //chooseTree();
+    
     BinarySearchTree obj(0, 0, 0, 0, 0, 0);
     obj.append(-7, -7, -7, -7, -7, -7);
-    obj.append(-10, -10, -10, -10, -10, -10);
     obj.append(-5, -5, -5, -5, -5, -5);
-    obj.append(-4, -4, -4, -4, -4, -4);
     obj.append(6, 6, 6, 6, 6, 6);
     obj.append(4, 4, 4, 4, 4, 4);
     obj.append(4, 4, 4, 4, 4, 4);
@@ -670,7 +766,6 @@ int main() {
     obj.append(32, 32, 32, 32, 32, 32);
     obj.append(341, 341, 341, 341, 341, 341);
     obj.outTree();
-    obj.outTree();
-
+    obj.append(2021, 9, 28, 12, 32, 44);
     return 0;
 }
