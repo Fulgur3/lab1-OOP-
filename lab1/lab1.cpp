@@ -1,8 +1,8 @@
 #include "Tree.h"
 #include <iostream>
 #include <math.h>
-#include <time.h>
 #include <vector>
+#include <map>
 using namespace std;
 
 Tree::Node::Node(int year, int month, int day, int hour, int minute, int second) {
@@ -38,7 +38,6 @@ void Tree::outputTree(Node* current, int temp) {
 		outputTree(current->leaves[i], temp);
 	}
 }
-
 
 
 void Tree::defaultOutput() {
@@ -750,7 +749,7 @@ vector<int> BinarySearchTree::get(int key) {
     return res;
 }
 
-string weekday(int d, int m, int y) {
+long yeartoDays(int y, int m, int d) {
     int LeapYears = (int)y / 4;
     long a = (y - LeapYears) * 365 + LeapYears * 366;
     if (m >= 2) a += 31;
@@ -766,8 +765,15 @@ string weekday(int d, int m, int y) {
     if (m >= 11) a += 31;
     if (m == 12) a += 30;
     a += d;
-    int b = ((a - 2) % 7)-1;
+    return a;
+}
+
+string weekday(int y, int m, int d) {
+    long a = yeartoDays(y, m, d);
+    int b = ((a - 2) % 7);
     switch (b) {
+    case 0:
+        return "Saturday";
     case 1:
         return "Monday";
     case 2:
@@ -782,9 +788,73 @@ string weekday(int d, int m, int y) {
         return "Saturday";
     case 7:
         return "Sunday";
+
     }
 }
 
+int weekNumber(int y, int m, int d) {
+    map<string, int> map2 = { { "Monday" ,1 }, { "Tuesday" , 2},{"Wednesday",3},{"Thursday",4},{"Friday",5},{"Saturday",6},{"Sunday",7} };
+    long a = 0;
+    if (m >= 2) a += 31;
+    if (m >= 3 && (int)y / 4 == y / 4) a += 29;
+    else if (m >= 3) a += 28;
+    if (m >= 4) a += 31;
+    if (m >= 5) a += 30;
+    if (m >= 6) a += 31;
+    if (m >= 7) a += 30;
+    if (m >= 8) a += 31;
+    if (m >= 9) a += 31;
+    if (m >= 10) a += 30;
+    if (m >= 11) a += 31;
+    if (m == 12) a += 30;
+    a += d;
+    a -= map2[weekday(y, m, d)];
+    return a / 7+1;
+}
+
+string stats(int y, int key) {
+    int max = 0;
+    string word;
+    map<string, int> map = { { "Monday" ,1 }, { "Tuesday" , 2},{"Wednesday",3},{"Thursday",4},{"Friday",5},{"Saturday",6},{"Sunday",7} };
+    int arr[7] = {0,0,0,0,0,0,0};
+    for (int i = 1; i < 12; i++) {
+       
+        arr[map[weekday(y, i, key)] - 1]++;;
+    }
+    for (int i = 0; i < 6; i++) {
+        
+        if (arr[i+1] > arr[i])
+            max = i+2;
+        else
+            max = i+1 ;
+    }
+    switch (max) {
+    case 0:
+        return "Saturday";
+    case 1:
+        return "Monday";
+    case 2:
+        return "Tuesday";
+    case 3:
+        return "Wednesday";
+    case 4:
+        return "Thursday";
+    case 5:
+        return "Friday";
+    case 6:
+        return "Saturday";
+    case 7:
+        return "Sunday";
+
+    }
+
+   
+}
+
+long differenceBetweenYears(int y1, int m1, int d1, int y2, int m2, int d2) {
+  
+    return abs( yeartoDays(y1, m1, d1)-yeartoDays(y2,m2,d2)+1);
+}
 
 
 int main() {
@@ -799,8 +869,12 @@ int main() {
     obj.append(32, 32, 32, 32, 32, 32);
     obj.append(341, 341, 341, 341, 341, 341);
    obj.outTree();
-    obj.append(2021, 9, 29, 12, 32, 44);
+    obj.append(2020, 10, 21, 12, 32, 44);
    vector<int>temp= obj.get(3);
-   cout << weekday(temp[2], temp[1], temp[0]) << endl;
+   vector<int>temp2 = obj.get(10);
+   cout << weekday(temp[0], temp[1], temp[2]) << endl;
+   cout << weekNumber(temp[0], temp[1], temp[2]) << endl;
+   cout << differenceBetweenYears(temp[0], temp[1], temp[2], temp2[0], temp2[1], temp2[2])<<endl;
+   cout << stats(2021, 13) << endl;
     return 0;
 }
