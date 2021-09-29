@@ -718,6 +718,37 @@ BinarySearchTree::Node* BinarySearchTree::getParent(Node* tree, Node* current) {
     else return nullptr;
 }
 
+BinarySearchTree::Node* BinarySearchTree::searchNode(Node* current,int id)
+{
+ 
+  
+    
+    if (current != nullptr && current->id != id) {
+        Node* Left = searchNode(current->left, id);
+        Node* Right = searchNode(current->right, id);
+        if (Left != nullptr) {
+            return Left;
+        }
+        else if (Right != nullptr) {
+            return Right;
+        }
+        else {
+            return nullptr;
+        }
+    }
+    
+    return current;
+    
+}
+
+vector<int> BinarySearchTree::get(int key) {
+    Node *current= searchNode(root, key);
+    vector<int>res;
+    res.push_back(current->year);
+    res.push_back(current->month);
+    res.push_back(current->day);
+    return res;
+}
 
 string weekday(int d, int m, int y) {
     int LeapYears = (int)y / 4;
@@ -735,7 +766,7 @@ string weekday(int d, int m, int y) {
     if (m >= 11) a += 31;
     if (m == 12) a += 30;
     a += d;
-    int b = (a - 2) % 7;
+    int b = ((a - 2) % 7)-1;
     switch (b) {
     case 1:
         return "Monday";
@@ -754,18 +785,22 @@ string weekday(int d, int m, int y) {
     }
 }
 
+
+
 int main() {
     
     BinarySearchTree obj(0, 0, 0, 0, 0, 0);
-    obj.append(-7, -7, -7, -7, -7, -7);
-    obj.append(-5, -5, -5, -5, -5, -5);
+    obj.append(7, 7, 7, 7, 7, 7);
+    obj.append(2021, 9, 29, 12, 32, 44);
     obj.append(6, 6, 6, 6, 6, 6);
     obj.append(4, 4, 4, 4, 4, 4);
     obj.append(4, 4, 4, 4, 4, 4);
     obj.append(7, 7, 7, 7, 7, 7);
     obj.append(32, 32, 32, 32, 32, 32);
     obj.append(341, 341, 341, 341, 341, 341);
-    obj.outTree();
-    obj.append(2021, 9, 28, 12, 32, 44);
+   obj.outTree();
+    obj.append(2021, 9, 29, 12, 32, 44);
+   vector<int>temp= obj.get(3);
+   cout << weekday(temp[2], temp[1], temp[0]) << endl;
     return 0;
 }
