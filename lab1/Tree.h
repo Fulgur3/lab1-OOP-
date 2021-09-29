@@ -114,4 +114,6 @@ public:
     void deleteTree();
     void deleteNodeByValue(int year, int month, int day, int hour, int minute, int second);
     Node* getParent(Node* tree, Node* current);
+    Node* searchNode(Node* current,int id);
+    vector<int> get(int key);
 };
